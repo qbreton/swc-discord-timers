@@ -2,7 +2,7 @@ const { Client, EmbedBuilder, AttachmentBuilder, GatewayIntentBits } = require('
 const client = new Client({intents: [GatewayIntentBits.GuildMessages]});
 const fs = require('fs');
 
-const token = 'MTExMDEyOTg4NTAwOTE2NjM2OA.GwYuHh.5-tf7biyi2WAN7PqvL_tJgydTRZfLIA0wQibYw';
+const token = require('./config.json').token;
 
 // Chargez le fichier JSON contenant les données des boss
 const spawnData = require('./bosses.json');
