@@ -1,5 +1,5 @@
 [
-    {
+  {
     "zone": "Rudelin",
     "spawnTimes": [
       "01:00",
@@ -11,7 +11,16 @@
       "19:00",
       "22:00"
     ],
-    "nextBaphomet": "2023-05-23"
+    "baphomet": [
+      {
+        "day": "Tuesday",
+        "time": "22:30"
+      },
+      {
+        "day": "Friday",
+        "time": "01:30"
+      }
+    ]
   },
   {
     "zone": "Tesca",
@@ -25,7 +34,16 @@
       "20:00",
       "23:00"
     ],
-    "nextBaphomet": "2023-05-24"
+    "baphomet": [
+      {
+        "day": "Wednesday",
+        "time": "22:30"
+      },
+      {
+        "day": "Saturday",
+        "time": "22:30"
+      }
+    ]
   },
   {
     "zone": "Ayah",
@@ -39,7 +57,16 @@
       "20:30",
       "23:30"
     ],
-    "nextBaphomet": "2023-05-25"
+    "baphomet": [
+      {
+        "day": "Thursday",
+        "time": "22:30"
+      },
+      {
+        "day": "Saturday",
+        "time": "01:30"
+      }
+    ]
   },
   {
     "zone": "Flurence",
@@ -53,7 +80,16 @@
       "18:00",
       "21:00"
     ],
-    "nextBaphomet": "2023-05-26"
+    "baphomet": [
+      {
+        "day": "Friday",
+        "time": "22:30"
+      },
+      {
+        "day": "Sunday",
+        "time": "22:30"
+      }
+    ]
   },
   {
     "zone": "Rukurangma",
@@ -67,6 +103,15 @@
       "18:30",
       "21:30"
     ],
-    "nextBaphomet": "2023-05-27"
+    "baphomet": [
+      {
+        "day": "Monday",
+        "time": "22:30"
+      },
+      {
+        "day": "Sunday",
+        "time": "01:30"
+      }
+    ]
   }
 ]

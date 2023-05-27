@@ -34,9 +34,7 @@ client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
   
     checkBossSpawn();
-
-    // Appelez la fonction checkBaphometSpawn à intervalles réguliers (par exemple, toutes les minutes)
-    setInterval(checkBaphometSpawn, 60000); // Vérifie chaque minute s'il y a un boss à apparaître
+    checkBaphometSpawn();
   });
 
 function checkBossSpawn() {
@@ -63,9 +61,6 @@ function checkBossSpawn() {
       
       // Créez une date avec l'heure de spawn actuelle dans le fuseau horaire de Paris
       const spawnDate = moment.tz(`${currentDate} ${spawnHour}:${spawnMinute}`, 'YYYY-MM-DD HH:mm', 'Europe/Paris');
-
-      // Calculez la différence en minutes entre l'heure de spawn et l'heure actuelle
-      const diffInMinutes = spawnDate.diff(parisTime, 'minutes');
       
       // Calculez le délai jusqu'à l'heure de spawn actuelle, en tenant compte des 5 minutes avant	
       let delay = 0;	
@@ -75,7 +70,6 @@ function checkBossSpawn() {
           delay =	
           (hour + 24 - currentHour) * 60 * 60 * 1000 + (minute - currentMinute - 5) * 60 * 1000;	
       }
-      console.log(delay / 1000);
 
       // Planifiez l'envoi du message pour l'heure de spawn
       setTimeout(() => {
@@ -91,31 +85,63 @@ function checkBossSpawn() {
 
 function checkBaphometSpawn() {
   const parisTime = moment();
-  const currentDate = parisTime.format('YYYY-MM-DD');
+  const currentDay = parisTime.format('dddd');
+  const currentHour = parisTime.format('HH:mm');
 
-  // Parcourez les données des boss pour vérifier s'il y a un boss à apparaître aujourd'hui
+  // Parcourez les données des boss pour vérifier s'il y a un baphomet à apparaître aujourd'hui ou dans le futur
   spawnData.forEach((boss) => {
-    if (boss.nextBaphomet === currentDate && parisTime.hours() === 22 && parisTime.minutes() === 25) {
-      const zone = boss.zone;
+    const zone = boss.zone;
+    const baphometSpawnData = boss.baphomet;
 
-      // Mettez à jour la valeur nextSpawnDate pour le boss
-      const nextSpawnDate = getNextSpawnDate(currentDate); // Fonction pour calculer la prochaine date d'apparition
+    // Recherchez le prochain baphomet à planifier (incluant les baphomets passés)
+    const nextBaphometSpawn = baphometSpawnData.find((spawn) => {
+      const spawnDay = spawn.day;
+      const spawnTime = spawn.time;
+      const spawnDateTime = moment.tz(`${spawnDay} ${spawnTime}`, 'dddd HH:mm', 'Europe/Paris');
+      
+      // Vérifiez si la date de spawn est aujourd'hui ou ultérieure
+      return parisTime.isSameOrBefore(spawnDateTime);
+    });
 
-      // Mettez à jour la valeur nextSpawnDate dans les données du boss
-      boss.nextBaphomet = nextSpawnDate;
+    if (nextBaphometSpawn) {
+      const spawnDay = nextBaphometSpawn.day;
+      const spawnTime = nextBaphometSpawn.time;
+      const spawnDateTime = moment.tz(`${spawnDay} ${spawnTime}`, 'dddd HH:mm', 'Europe/Paris');
+      spawnDateTime.subtract(5, 'minutes'); // Soustrayez 5 minutes pour l'envoi du message
 
-      // Sauvegardez les données mises à jour dans le fichier JSON
-      saveSpawnData(spawnData); // Fonction pour sauvegarder les données dans le fichier JSON
+      const diffInMinutes = spawnDateTime.diff(parisTime, 'minutes');
 
-      sendMessage(zone, true);
+      // Planifiez l'envoi du message 5 minutes avant le spawn
+      setTimeout(() => {
+        sendMessage(zone, true);
+        setInterval(() => {
+          sendMessage(zone, true);
+        }, 7 * 24 * 60 * 60 * 1000); // Répétez tous les 7 jours
+      }, diffInMinutes * 60 * 1000);
     }
   });
 }
 
-// Fonction pour calculer la prochaine date d'apparition du boss
-function getNextSpawnDate(currentDate) {
-  const nextDate = moment(currentDate, 'YYYY-MM-DD').add(spawnData.length, 'days');
-  return nextDate.format('YYYY-MM-DD');
+function getNextBaphometSpawnDate(currentDay, spawnTimes) {
+  const parisTime = moment();
+  const currentHour = parisTime.format('HH:mm');
+
+  // Find the next occurrence of the Baphomet spawn
+  for (let i = 0; i < 7; i++) {
+    const nextSpawnDayIndex = (moment().isoWeekday() + i) % 7;
+    const nextSpawnDay = moment().isoWeekday(nextSpawnDayIndex).format('dddd');
+
+    if (nextSpawnDay === currentDay) {
+      // Check if the current spawn time has already passed today
+      for (const spawnTime of spawnTimes) {
+        if (spawnTime >= currentHour) {
+          return moment().isoWeekday(nextSpawnDayIndex).format('YYYY-MM-DD');
+        }
+      }
+    }
+  }
+
+  return null; // No more spawns this week
 }
 
 // Fonction pour sauvegarder les données dans le fichier JSON
